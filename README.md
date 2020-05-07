@@ -1,4 +1,4 @@
-"# CS2223StringSearchFinal" 
+# CS2223StringSearchFinal
 Eclipse project with an implementation of Horspool's Algorithm and some code to profile it.
 It profiles based both on the amount of time it takes, and the number of character comparisons the algorithm does.
 Also currently has an implementation of a simple string search algorithm for comparison (more can be added).
