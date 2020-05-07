@@ -27,6 +27,14 @@ public class StringMatching {
 		fileText += s;
 	}
 
+	/**
+	 * read an ASCII file in
+	 * for reasons beyond me this is like 1000x faster than a buffered file reader
+	 * based on the response from user Pih from
+	 * https://stackoverflow.com/questions/5854859/faster-way-to-read-file
+	 * @param fileName Path and name of file to read in
+	 * @throws IOException
+	 */
 	public void readFile(String fileName) throws IOException {
 		FileInputStream f = new FileInputStream(fileName);
 		FileChannel ch = f.getChannel();
@@ -268,6 +276,7 @@ public class StringMatching {
 		System.out.println("File text length is " + sM.getStringLength());
 
 		List<SearchMethodProfile> perfs = sM.randomProfileStringMatching(1000);
+		//print out data in csv form
 		System.out.println("Index, Length, Horspool Time, Horspool Comps, Simple time, Simple comp");
 		List<SearchPerformance> hPerfs = perfs.get(0).getPerformances();
 		List<SearchPerformance> sPerfs = perfs.get(1).getPerformances();
