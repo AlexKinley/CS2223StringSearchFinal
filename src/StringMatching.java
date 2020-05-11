@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-
 public class StringMatching {
 
 	public static int ONE_THOUSAND = 1000;
 	public static int ONE_MILLION = 1000000;
 
 	final static Charset ASCII_ENCODING = StandardCharsets.US_ASCII;
-	String fileText;
+	private String fileText;
 	public int compareCount = 0;
 
 	public StringMatching() {
@@ -28,11 +27,12 @@ public class StringMatching {
 	}
 
 	/**
-	 * read an ASCII file in
-	 * for reasons beyond me this is like 1000x faster than a buffered file reader
-	 * based on the response from user Pih from
+	 * read an ASCII file in for reasons beyond me this is like 1000x faster than a
+	 * buffered file reader based on the response from user Pih from
 	 * https://stackoverflow.com/questions/5854859/faster-way-to-read-file
-	 * @param fileName Path and name of file to read in
+	 * 
+	 * @param fileName
+	 *            Path and name of file to read in
 	 * @throws IOException
 	 */
 	public void readFile(String fileName) throws IOException {
@@ -53,196 +53,103 @@ public class StringMatching {
 		return fileText.length();
 	}
 
-	public void resetCompareCount() {
-		compareCount = 0;
-	}
 
-	public boolean compare(char a, char b) {
-		compareCount++;
-		return a == b;
-	}
-
-	/**
-	 * Creates a lookup table for how much to shift the word for horspool's
-	 * algorithm Assumes the alphabet is the ascii alphabet Based on ShiftTable from
-	 * page 261 of Levitin
-	 * 
-	 * @param pattern
-	 *            String that is being searched for
-	 * @return Shift lookup table
-	 */
-	public List<Integer> shiftTable(String pattern) {
-		List<Integer> shiftTable = new ArrayList<Integer>();
-		int patternLength = pattern.length();
-
-		for (int i = 0; i < 255; i++) {
-			shiftTable.add(patternLength);
-		}
-
-		for (int j = 0; j < patternLength - 1; j++) {
-			char c = pattern.charAt(j);
-			int val = (int) c;
-			shiftTable.set(val, patternLength - 1 - j);
-		}
-
-		return shiftTable;
-	}
-
-	/**
-	 * Returns the position of the first appearance of the pattern in the text If
-	 * the pattern does not appear returns -1 Based on HorspoolMatching from page
-	 * 262 of Levitin
-	 * 
-	 * @param pattern
-	 *            String to find in text
-	 * @param text
-	 *            String to search for pattern in
-	 * @return Index of first occurrence of pattern in text, -1 if pattern does not
-	 *         appear
-	 */
-	public int HorspoolMatching(String pattern, String text) {
-
-		List<Integer> shiftTable = shiftTable(pattern);
-
-		int patternLength = pattern.length();
-		int textLength = text.length();
-
-		int index = patternLength - 1;
-
-		while (index < textLength) {
-			int k = 0;
-			while ((k < patternLength) && (compare(pattern.charAt(patternLength - 1 - k), text.charAt(index - k)))) {
-				k++;
-			}
-			if (k == patternLength) {
-				return index - patternLength + 1;
-			} else {
-				index += shiftTable.get(text.charAt(index));
-			}
-		}
-
-		return -1;
-	}
-
-	/**
-	 * Returns the position of the first appearance of the pattern in the read in
-	 * file. If the pattern does not appear returns -1. Based on HorspoolMatching
-	 * from page 262 of Levitin
-	 * 
-	 * @param pattern
-	 *            String to find in text
-	 * @return Index of first occurrence of pattern in text, -1 if pattern does not
-	 *         appear
-	 */
-	public int FileHorspoolMatching(String pattern) {
-
-		List<Integer> shiftTable = shiftTable(pattern);
-
-		int patternLength = pattern.length();
-		int textLength = fileText.length();
-
-		int index = patternLength - 1;
-
-		while (index < textLength) {
-			int k = 0;
-			while ((k < patternLength)
-					&& (compare(pattern.charAt(patternLength - 1 - k), fileText.charAt(index - k)))) {
-				k++;
-			}
-			if (k == patternLength) {
-				return index - patternLength + 1;
-			} else {
-				index += shiftTable.get(fileText.charAt(index));
-			}
-		}
-
-		return -1;
-	}
-	
-	/**
-	 * A simple string search algorithm that just moves forward once each time
-	 * 
-	 * @param pattern String being searched for in file
-	 * @return First index of pattern, -1 if it does not appear
-	 */
-	public int fileSmpleStringMatching(String pattern) {
-		int patternLength = pattern.length();
-		int textLength = fileText.length();
-		
-		int index = 0;
-		
-		while (index < (textLength - patternLength)) {
-			int k = 0;
-			while ((k < patternLength)
-					&& (compare(pattern.charAt(k), fileText.charAt(index + k)))) {
-				k++;
-			}
-			if (k == patternLength) {
-				return index;
-			} else {
-				index += 1;
-			}
-		}
-		return -1;
-	}
-	
 	public List<SearchMethodProfile> randomProfileStringMatching(int runCount) {
 		List<SearchMethodProfile> profiles = new ArrayList<SearchMethodProfile>();
 		SearchMethodProfile horspoolPerf = new SearchMethodProfile("Horspool's Algorithm");
 		SearchMethodProfile simplePerf = new SearchMethodProfile("Simple Algorithm");
 		profiles.add(horspoolPerf);
 		profiles.add(simplePerf);
-		
+
 		Random r = new Random();
-		
+
 		int textLength = this.getStringLength();
 		long startTime = 0;
 		long endTime = 0;
 		int pos = 0;
-		
-		
-		for(int i = 0; i < runCount; i++) {
-			int startIndex = r.nextInt(textLength);
-			int maxLength = textLength - startIndex;
-			if(maxLength > 1000)
-				maxLength = maxLength % 1000;
-			
-			int length = r.nextInt(maxLength + 1) + 1;
-			String s = "";
-			for(int n = 0; n < length; n++) {
-				s += fileText.charAt(startIndex + n);
-			}
-			if(s.length() == 0) {
-				System.out.println("string length is zero");
-				System.out.println("startIndex = " + startIndex);
-				System.out.println("maxLength = " + maxLength);
-				System.out.println("length = " + length);
-			}
-			
-			this.resetCompareCount();
 
-			
-			startTime = System.nanoTime();
-			pos = FileHorspoolMatching(s);
-			endTime = System.nanoTime();
-			
-			SearchPerformance sp1 = new SearchPerformance(s, endTime - startTime, pos, compareCount);
-			horspoolPerf.addPerf(sp1);
+//		for (int i = 0; i < runCount; i++) {
+//			int startIndex = r.nextInt(textLength);
+//			int maxLength = textLength - startIndex;
+//			if (maxLength > 1000)
+//				maxLength = maxLength % 1000;
+//
+//			int length = r.nextInt(maxLength + 1) + 1;
+//			String s = "";
+//			for (int n = 0; n < length; n++) {
+//				s += fileText.charAt(startIndex + n);
+//			}
+//			if (s.length() == 0) {
+//				System.out.println("string length is zero");
+//				System.out.println("startIndex = " + startIndex);
+//				System.out.println("maxLength = " + maxLength);
+//				System.out.println("length = " + length);
+//			}
+//
+//			this.resetCompareCount();
+//
+//			startTime = System.nanoTime();
+//			pos = FileHorspoolMatching(s);
+//			endTime = System.nanoTime();
+//
+//			SearchPerformance sp1 = new SearchPerformance(s, endTime - startTime, pos, compareCount);
+//			horspoolPerf.addPerf(sp1);
+//
+//			this.resetCompareCount();
+//
+//			startTime = System.nanoTime();
+//			pos = fileSmpleStringMatching(s);
+//			endTime = System.nanoTime();
+//
+//			SearchPerformance sp2 = new SearchPerformance(s, endTime - startTime, pos, compareCount);
+//			simplePerf.addPerf(sp2);
+//		}
 
-			this.resetCompareCount();
-			
-			startTime = System.nanoTime();
-			pos = fileSmpleStringMatching(s);
-			endTime = System.nanoTime();
-			
-			SearchPerformance sp2 = new SearchPerformance(s, endTime - startTime, pos, compareCount);
-			simplePerf.addPerf(sp2);
-		}
-		
 		return profiles;
 	}
+	
+	public String makeRepeatingLetter(char c, int length) {
+		String s = "";
+		for(int i = 0; i < length; i++) {
+			s += c;
+		}
+		return s;
+	}
+	
 	/**
-	 * Helper to give useful units to the difference between two System.getNanoTime() calls
+	 * A helper method to run multiple implementations with the same text and pattern
+	 * and print out the results
+	 * @param text The text to search in
+	 * @param pattern The pattern to search for
+	 */
+	public void compareAlgos(String text, String pattern) {
+		StringSearch horspool = new HorspoolSearch(text);
+		StringSearch boyerMoore = new BoyerMooreSearch(text);
+		StringSearch simple = new SimpleSearch(text);
+		
+		System.out.println("HORSPOOL'S ALGORITHM");
+		int index = horspool.search(pattern);
+		System.out.println("index: " + index);
+		System.out.println("compare count: " + horspool.getCompareCount());
+		horspool.resetCompareCount();
+		
+		System.out.println("BOYER-MOORE ALGORITHM");
+		index = boyerMoore.search(pattern);
+		System.out.println("index: " + index);
+		System.out.println("compare count: " + boyerMoore.getCompareCount());
+		boyerMoore.resetCompareCount();
+		
+		System.out.println("SIMPLE STRING SEARCH ALGORITHM");
+		index = simple.search(pattern);
+		System.out.println("index: " + index);
+		System.out.println("compare count: " + simple.getCompareCount());
+		simple.resetCompareCount();
+	}
+
+	/**
+	 * Helper to give useful units to the difference between two
+	 * System.getNanoTime() calls
+	 * 
 	 * @param startTime
 	 * @param endTime
 	 * @return
@@ -258,37 +165,78 @@ public class StringMatching {
 			return (time / ONE_MILLION) + "ms";
 		}
 	}
-
-	public static void main(String[] args) {
-		StringMatching sM = new StringMatching();
-
+	
+	public void runTests() {
 		long startTime = 0;
 		long endTime = 0;
 
 		try {
 			startTime = System.nanoTime();
-			sM.readFile("moby10b.txt");
+			readFile("moby10b.txt");
 			endTime = System.nanoTime();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println("Time to read file " + nanoTimeStartAndEndToString(startTime, endTime));
-		System.out.println("File text length is " + sM.getStringLength());
+		System.out.println("File text length is " + getStringLength());
 
-		List<SearchMethodProfile> perfs = sM.randomProfileStringMatching(1000);
-		//print out data in csv form
-		System.out.println("Index, Length, Horspool Time, Horspool Comps, Simple time, Simple comp");
-		List<SearchPerformance> hPerfs = perfs.get(0).getPerformances();
-		List<SearchPerformance> sPerfs = perfs.get(1).getPerformances();
-		for(int i = 0; i < hPerfs.size(); i++) {
-			SearchPerformance hPerf =hPerfs.get(i);
-			SearchPerformance sPerf = sPerfs.get(i);
-			System.out.print(hPerf.getPos() + ", ");
-			System.out.print(hPerf.getSearchString().length() + ", ");
-			System.out.print(hPerf.getElapsedTimeMicroString() + ", ");
-			System.out.print(hPerf.getComparisons() + ", ");
-			System.out.print(sPerf.getElapsedTimeMicroString() + ", ");
-			System.out.print(sPerf.getComparisons() + "\n");
+		System.out.println("\nsearching for \"hamlet\"");
+		compareAlgos(fileText, "hamlet");
+
+		System.out.println("\nsearching for \"Hamlet\"");
+		compareAlgos(fileText, "Hamlet");
+		
+		String longString = "In less than a minute, without quitting his little craft, he and his\r\n" + 
+				"crew were dropped to the water, and were soon alongside of the\r\n" + 
+				"stranger.  But here a curious difficulty presented itself.  In the\r\n" + 
+				"excitement of the moment, Ahab had forgotten that since the loss of\r\n" + 
+				"his leg he had never once stepped on board of any vessel at sea but\r\n" + 
+				"his own, and then it was always by an ingenious and very handy\r\n" + 
+				"mechanical contrivance peculiar to the Pequod, and a thing not to be\r\n" + 
+				"rigged and shipped in any other vessel at a moment's warning.  Now,\r\n" + 
+				"it is no very easy matter for anybody--except those who are almost\r\n" + 
+				"hourly used to it, like whalemen--to clamber up a ship's side from a\r\n" + 
+				"boat on the open sea; for the great swells now lift the boat high up\r\n" + 
+				"towards the bulwarks, and then instantaneously drop it half way down\r\n" + 
+				"to the kelson.  So, deprived of one leg, and the strange ship of\r\n" + 
+				"course being altogether unsupplied with the kindly invention, Ahab\r\n" + 
+				"now found himself abjectly reduced to a clumsy landsman again;\r\n" + 
+				"hopelessly eyeing the uncertain changeful height he could hardly hope\r\n" + 
+				"to attain.";
+		
+		System.out.println("\nsearching for an entire paragraph in chapter 100");
+		compareAlgos(fileText, longString);
+		
+		
+		System.out.println("\nsearching for an \"whale-fish\"");
+		compareAlgos(fileText, "whale-fish");
+		
+		
+		try {
+			clearFileText();
+			readFile("ElephantsChild.txt");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		
+		System.out.println("\nsearching for \"Bi-Coloured-Python-Rock-Snake\"");
+		compareAlgos(fileText, "Bi-Coloured-Python-Rock-Snake");
+		
+		String badCase = makeRepeatingLetter('E', 10000);
+		String pattern = "M" + makeRepeatingLetter('E', ONE_THOUSAND);
+		System.out.println("\nsearching for 'M' followed by 1000 'E' in ten thousand 'E's");
+		compareAlgos(badCase, pattern);
+		
+		pattern = makeRepeatingLetter('E', ONE_THOUSAND) + "M";
+		System.out.println("\nsearching for 1000 'E' followed by 'M' in ten thousand 'E's");
+		compareAlgos(badCase, pattern);
+	}
+
+	public static void main(String[] args) {
+		StringMatching sM = new StringMatching();
+		
+		sM.runTests();
+		
+		
 	}
 }
