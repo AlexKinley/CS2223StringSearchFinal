@@ -11,7 +11,7 @@ public class SimpleSearch extends StringSearch{
 
 		int index = 0;
 
-		while (index < (textLength - patternLength)) {
+		while (index <= (textLength - patternLength)) {
 			int k = 0;
 			while ((k < patternLength) && (compare(pattern.charAt(k), text.charAt(index + k)))) {
 				k++;

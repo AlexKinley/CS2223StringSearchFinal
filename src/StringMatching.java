@@ -14,7 +14,8 @@ public class StringMatching {
 	public static int ONE_THOUSAND = 1000;
 	public static int ONE_MILLION = 1000000;
 
-	final static Charset ASCII_ENCODING = StandardCharsets.US_ASCII;
+	// 8 bit character encoding allows the elephants child to work correctly
+	final static Charset ASCII_ENCODING = StandardCharsets.ISO_8859_1;
 	private String fileText;
 	public int compareCount = 0;
 
@@ -124,25 +125,27 @@ public class StringMatching {
 	 */
 	public void compareAlgos(String text, String pattern) {
 		StringSearch horspool = new HorspoolSearch(text);
-		StringSearch boyerMoore = new BoyerMooreSearch(text);
+		BoyerMooreSearch boyerMoore = new BoyerMooreSearch(text);
 		StringSearch simple = new SimpleSearch(text);
 		
 		System.out.println("HORSPOOL'S ALGORITHM");
 		int index = horspool.search(pattern);
 		System.out.println("index: " + index);
-		System.out.println("compare count: " + horspool.getCompareCount());
+		System.out.println("comparisons: " + horspool.getCompareCount());
 		horspool.resetCompareCount();
 		
 		System.out.println("BOYER-MOORE ALGORITHM");
 		index = boyerMoore.search(pattern);
 		System.out.println("index: " + index);
-		System.out.println("compare count: " + boyerMoore.getCompareCount());
+		System.out.println("setup comparisons: " + boyerMoore.getSetupCompares());
+		System.out.println("search comparisons: " + boyerMoore.getCompareCount());
+		System.out.println("total: " + (boyerMoore.getSetupCompares() + boyerMoore.getCompareCount()));
 		boyerMoore.resetCompareCount();
 		
 		System.out.println("SIMPLE STRING SEARCH ALGORITHM");
 		index = simple.search(pattern);
 		System.out.println("index: " + index);
-		System.out.println("compare count: " + simple.getCompareCount());
+		System.out.println("comparisons: " + simple.getCompareCount());
 		simple.resetCompareCount();
 	}
 
@@ -180,6 +183,15 @@ public class StringMatching {
 		System.out.println("Time to read file " + nanoTimeStartAndEndToString(startTime, endTime));
 		System.out.println("File text length is " + getStringLength());
 
+		System.out.println("\nsearching for \"lamb\" in \"Mary had a little lamb\"");
+		compareAlgos("Mary had a little lamb", "lamb");
+		
+		System.out.println("\nsearching for \"Mary\" in \"Mary had a little lamb\"");
+		compareAlgos("Mary had a little lamb", "Mary");
+		
+		System.out.println("\nsearching for \"cat\" in \"Mary had a little lamb\"");
+		compareAlgos("Mary had a little lamb", "cat");
+		
 		System.out.println("\nsearching for \"hamlet\"");
 		compareAlgos(fileText, "hamlet");
 
@@ -222,6 +234,10 @@ public class StringMatching {
 		System.out.println("\nsearching for \"Bi-Coloured-Python-Rock-Snake\"");
 		compareAlgos(fileText, "Bi-Coloured-Python-Rock-Snake");
 		
+		System.out.println("\nsearching for \"\"But it's very useful,\"\"");
+		compareAlgos(fileText, "\"But it's very useful,\"");
+		
+		
 		String badCase = makeRepeatingLetter('E', 10000);
 		String pattern = "M" + makeRepeatingLetter('E', ONE_THOUSAND);
 		System.out.println("\nsearching for 'M' followed by 1000 'E' in ten thousand 'E's");
@@ -230,6 +246,7 @@ public class StringMatching {
 		pattern = makeRepeatingLetter('E', ONE_THOUSAND) + "M";
 		System.out.println("\nsearching for 1000 'E' followed by 'M' in ten thousand 'E's");
 		compareAlgos(badCase, pattern);
+		
 	}
 
 	public static void main(String[] args) {

@@ -3,9 +3,12 @@ import java.util.List;
 
 public class HorspoolSearch extends StringSearch{
 
+
+	
 	public HorspoolSearch(String text) {
 		super(text);
 	}
+	
 	/**
 	 * Creates a lookup table for how much to shift the word for horspool's
 	 * algorithm Assumes the alphabet is the ascii alphabet Based on ShiftTable from
@@ -31,6 +34,8 @@ public class HorspoolSearch extends StringSearch{
 
 		return shiftTable;
 	}
+	
+	
 
 	
 	/**
@@ -50,6 +55,7 @@ public class HorspoolSearch extends StringSearch{
 		int patternLength = pattern.length();
 		int textLength = text.length();
 
+		
 		int index = patternLength - 1;
 
 		while (index < textLength) {

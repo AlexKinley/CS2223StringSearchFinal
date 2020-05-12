@@ -3,6 +3,10 @@ import java.util.List;
 
 public class BoyerMooreSearch extends StringSearch {
 
+	
+	private int setupCompares = 0;
+	
+	
 	public BoyerMooreSearch(String text) {
 		super(text);
 	}
@@ -28,6 +32,10 @@ public class BoyerMooreSearch extends StringSearch {
 		}
 
 		return shiftTable;
+	}
+	
+	public int getSetupCompares() {
+		return this.setupCompares;
 	}
 
 	/**
@@ -110,11 +118,16 @@ public class BoyerMooreSearch extends StringSearch {
 		}
 		List<Integer> charTable = boyerMooreBadCharacterShift(pattern);
 		List<Integer> offsetTable = boyerMooreOffsetTable(pattern);
+		
+		setupCompares = this.compareCount;
+		this.resetCompareCount();
+		
+		
 		for (int i = pLength - 1, j; i < text.length();) {
 			for (j = pLength - 1; compare(pattern.charAt(j), text.charAt(i)); --i, --j) {
 				if (j == 0) {
 					return i;
-				}
+				} 
 			}
 			// i += needle.length - j; // For naive method
 			i += Math.max(offsetTable.get(pLength - 1 - j), charTable.get(text.charAt(i)));
