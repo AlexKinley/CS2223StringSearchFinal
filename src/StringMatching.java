@@ -183,6 +183,9 @@ public class StringMatching {
 		System.out.println("Time to read file " + nanoTimeStartAndEndToString(startTime, endTime));
 		System.out.println("File text length is " + getStringLength());
 
+		System.out.println("\nsearching for \"BARBER\" in \"JIM SAW ME IN THE BARBERSHOP\"");
+		compareAlgos("JIM SAW ME IN THE BARBERSHOP", "BARBER");
+		
 		System.out.println("\nsearching for \"lamb\" in \"Mary had a little lamb\"");
 		compareAlgos("Mary had a little lamb", "lamb");
 		
